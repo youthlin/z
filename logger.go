@@ -34,7 +34,6 @@ type logger struct {
 
 // newLogger create a logger, skip: 相对于本结构体跳过几层调用
 func newLogger(zapL *zap.Logger) *logger {
-	zapL.WithOptions()
 	// 对 SugaredLogger.Debugf 包装了一层，所以需要多往上跳一层调用才是用户的行号
 	zapL = zapL.WithOptions(zap.AddCallerSkip(1))
 	return &logger{

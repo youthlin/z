@@ -60,7 +60,8 @@ func TestExample(t *testing.T) {
 			z.CtxInfoJSON(ctx, "with k1-v1 and k2-v2|s=%v", s)
 			z.CtxWarnJSON(ctx, "with k1-v1 and k2-v2|s=%v", s)
 			z.CtxErrorJSON(ctx, "with k1-v1 and k2-v2|s=%v", s)
-			ctx = context.WithValue(ctx, "中间key", "some...")
+			type k string
+			ctx = context.WithValue(ctx, k("中间key"), "some...")
 			ctx = z.CtxAddKV(ctx, "k3", "v3")
 			z.CtxDebug(ctx, "with k1-v1 and k2-v2 k3-v3")
 		})

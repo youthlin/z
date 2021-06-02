@@ -27,6 +27,7 @@ type Logger interface {
 
 // endregion interface
 
+// logger Logger 的实现
 type logger struct {
 	base   *zap.Logger
 	logger *zap.SugaredLogger

@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// toJSON 将入参转为 json
 func toJSON(args ...interface{}) []interface{} {
 	var result = make([]interface{}, 0, len(args))
 	for i, arg := range args {
@@ -15,21 +16,23 @@ func toJSON(args ...interface{}) []interface{} {
 				"value": fmt.Sprintf("%#v", arg),
 				"err":   fmt.Sprintf("%v", err),
 			}
-			bytes, err = json.Marshal(msg)
+			bytes, _ = json.Marshal(msg)
 			result = append(result, fmt.Sprintf("[< toJSON error|%s >]", bytes))
 		} else {
-			result = append(result, fmt.Sprintf("%s", bytes))
+			result = append(result, string(bytes))
 		}
 	}
 	return result
 }
 
-type ErrJSON struct {
+// errJSON 序列化为 JSON 时使用指定的格式转为 string
+type errJSON struct {
 	error
 	verb string
 }
 
-func (e *ErrJSON) MarshalJSON() ([]byte, error) {
+// MarshalJSON 序列化为 JSON 时调用
+func (e *errJSON) MarshalJSON() ([]byte, error) {
 	if e == nil || e.error == nil {
 		return []byte(`null`), nil
 	}
@@ -38,6 +41,7 @@ func (e *ErrJSON) MarshalJSON() ([]byte, error) {
 	return []byte(str), nil
 }
 
+// Err 返回一个 error, 其序列化为 JSON 时，会使用指定的 verb 格式序列化为 JSON string
 func Err(verb string, err error) error {
-	return &ErrJSON{err, verb}
+	return &errJSON{err, verb}
 }

@@ -65,43 +65,57 @@ func CtxAddKV(ctx context.Context, kvs ...interface{}) context.Context {
 	})
 }
 
+// CtxDebug 同 Debug, 带 ctx 参数，可将 ctx 上带的 k-v 打印，见 CtxAddKV
 func CtxDebug(ctx context.Context, fmt string, args ...interface{}) {
 	if Enable(zapcore.DebugLevel) {
 		// WithSkip 后返回的是 Logger, 但是 Debug 是在 CtxDebug 中调用的，所以需要跳过的层数和 SetGlobalLogger 是一致的
 		WithSkip(0, getAllKvs(ctx)...).Debug(fmt, args...)
 	}
 }
+
+// CtxInfo 同 Info, 带 ctx 参数，可将 ctx 上带的 k-v 打印，见 CtxAddKV
 func CtxInfo(ctx context.Context, fmt string, args ...interface{}) {
 	if Enable(zapcore.InfoLevel) {
 		WithSkip(0, getAllKvs(ctx)...).Info(fmt, args...)
 	}
 }
+
+// CtxWarn 同 Warn, 带 ctx 参数，可将 ctx 上带的 k-v 打印，见 CtxAddKV
 func CtxWarn(ctx context.Context, fmt string, args ...interface{}) {
 	if Enable(zapcore.WarnLevel) {
 		WithSkip(0, getAllKvs(ctx)...).Warn(fmt, args...)
 	}
 }
+
+// CtxError 同 Error, 带 ctx 参数，可将 ctx 上带的 k-v 打印，见 CtxAddKV
 func CtxError(ctx context.Context, fmt string, args ...interface{}) {
 	if Enable(zapcore.ErrorLevel) {
 		WithSkip(0, getAllKvs(ctx)...).Error(fmt, args...)
 	}
 }
 
+// CtxDebugJSON 同 DebugJSON, 带 ctx 参数，可将 ctx 上带的 k-v 打印，见 CtxAddKV
 func CtxDebugJSON(ctx context.Context, fmt string, args ...interface{}) {
 	if Enable(zapcore.DebugLevel) {
 		WithSkip(0, getAllKvs(ctx)...).DebugJSON(fmt, args...)
 	}
 }
+
+// CtxInfoJSON 同 InfoJSON, 带 ctx 参数，可将 ctx 上带的 k-v 打印，见 CtxAddKV
 func CtxInfoJSON(ctx context.Context, fmt string, args ...interface{}) {
 	if Enable(zapcore.InfoLevel) {
 		WithSkip(0, getAllKvs(ctx)...).InfoJSON(fmt, args...)
 	}
 }
+
+// CtxWarnJSON 同 WarnJSON, 带 ctx 参数，可将 ctx 上带的 k-v 打印，见 CtxAddKV
 func CtxWarnJSON(ctx context.Context, fmt string, args ...interface{}) {
 	if Enable(zapcore.WarnLevel) {
 		WithSkip(0, getAllKvs(ctx)...).WarnJSON(fmt, args...)
 	}
 }
+
+// CtxErrorJSON 同 ErrorJSON, 带 ctx 参数，可将 ctx 上带的 k-v 打印，见 CtxAddKV
 func CtxErrorJSON(ctx context.Context, fmt string, args ...interface{}) {
 	if Enable(zapcore.ErrorLevel) {
 		WithSkip(0, getAllKvs(ctx)...).ErrorJSON(fmt, args...)

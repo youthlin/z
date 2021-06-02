@@ -3,6 +3,7 @@ package z
 import (
 	"fmt"
 	"reflect"
+	"runtime"
 )
 
 // copyNoneZeroField copy none zero field. only exported field can be copied
@@ -24,4 +25,25 @@ func copyNoneZeroField(from, to interface{}) {
 			tValue.Field(i).Set(field)
 		}
 	}
+}
+
+// funcName 获取一个函数/方法的全限定名
+func funName(f interface{}) (name string) {
+	if f == nil {
+		return "<nil>"
+	}
+	defer func() {
+		if e := recover(); e != nil {
+			name = fmt.Sprintf("<err: %v>", e)
+			return
+		}
+	}()
+	rf := reflect.ValueOf(f)
+	if rf.Kind() != reflect.Func {
+		return "<not-func>"
+	}
+	if rf.IsNil() {
+		return "<nil>"
+	}
+	return runtime.FuncForPC(rf.Pointer()).Name()
 }

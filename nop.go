@@ -2,8 +2,10 @@ package z
 
 import "go.uber.org/zap/zapcore"
 
+// nopLogger 一个没有任何功能的 Logger 实例
 const nopLogger = nop(0)
 
+// nop 没有任何功能的 Logger
 type nop int
 
 func (n nop) Flush()                              {}

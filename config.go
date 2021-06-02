@@ -2,9 +2,6 @@ package z
 
 import (
 	"encoding/json"
-	"fmt"
-	"reflect"
-	"runtime"
 	"strings"
 
 	"go.uber.org/zap"
@@ -53,8 +50,11 @@ type Config struct {
 	Output        Output                `yaml:"output"`        // 输出配置
 	EncoderConfig zapcore.EncoderConfig `yaml:"encoderConfig"` // 输出的各个字段配置
 }
+
+// Configs 日志配置数组
 type Configs []*Config
 
+// String 打印配置
 func (c Configs) String() string {
 	var sb strings.Builder
 	sb.WriteString("[")
@@ -68,6 +68,8 @@ func (c Configs) String() string {
 	sb.WriteString("]")
 	return sb.String()
 }
+
+// String 打印配置
 func (c *Config) String() string {
 	if c == nil {
 		return "<nil>"
@@ -107,24 +109,4 @@ func (c *Config) String() string {
 	}
 	s, _ := json.Marshal(m)
 	return string(s)
-}
-
-func funName(f interface{}) (name string) {
-	if f == nil {
-		return "<nil>"
-	}
-	defer func() {
-		if e := recover(); e != nil {
-			name = fmt.Sprintf("<err: %v>", e)
-			return
-		}
-	}()
-	rf := reflect.ValueOf(f)
-	if rf.Kind() != reflect.Func {
-		return "<not-func>"
-	}
-	if rf.IsNil() {
-		return "<nil>"
-	}
-	return runtime.FuncForPC(rf.Pointer()).Name()
 }

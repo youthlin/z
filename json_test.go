@@ -1,6 +1,7 @@
 package z_test
 
 import (
+	"encoding/json"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -9,12 +10,11 @@ import (
 
 func TestErr(t *testing.T) {
 	Convey("Err", t, func() {
-		err := z.Err("%+v", err)
-		So(err, ShouldNotBeNil)
-		e, ok := err.(*z.ErrJSON)
-		So(ok, ShouldBeTrue)
+		e := z.Err("%+v", err)
+		So(e, ShouldNotBeNil)
+
 		So(e.Error(), ShouldEqual, "error")
-		bytes, err := e.MarshalJSON()
+		bytes, err := json.Marshal(e)
 		So(err, ShouldBeNil)
 		t.Logf("%s\n", bytes)
 		So(string(bytes), ShouldContainSubstring, "error")

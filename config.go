@@ -2,7 +2,6 @@ package z
 
 import (
 	"encoding/json"
-	"strings"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -25,8 +24,8 @@ func DefaultConfig() []*Config {
 
 // Output 日志输出配置
 type Output struct {
-	Type        OutputType        `yaml:"type"`        // 控制台或文件
-	Destination lumberjack.Logger `yaml:"destination"` // 如果是控制台，则只需要填写 Filename(stdout/stderr)，如果是文件，则根据需要填写字段
+	Type        OutputType        `json:"type" yaml:"type"`               // 控制台或文件
+	Destination lumberjack.Logger `json:"destination" yaml:"destination"` // 如果是控制台，则只需要填写 Filename(stdout/stderr)，如果是文件，则根据需要填写字段
 }
 
 // OutputType 日志输出类型
@@ -43,36 +42,20 @@ const (
 
 // Config 日志输出配置
 type Config struct {
-	Name          string                `yaml:"name"`          // 配置名称
-	Enable        bool                  `yaml:"enable"`        // 是否启用
-	Level         zapcore.Level         `yaml:"level"`         // 大于等于该级别的日志才会输出
-	AsJSON        bool                  `yaml:"json"`          // 整条日志使用 JSON 格式输出
-	Output        Output                `yaml:"output"`        // 输出配置
-	EncoderConfig zapcore.EncoderConfig `yaml:"encoderConfig"` // 输出的各个字段配置
+	Name          string                `json:"name" yaml:"name"`                   // 配置名称
+	Enable        bool                  `json:"enable" yaml:"enable"`               // 是否启用
+	Level         zapcore.Level         `json:"level" yaml:"level"`                 // 大于等于该级别的日志才会输出
+	AsJSON        bool                  `json:"json" yaml:"json"`                   // 整条日志使用 JSON 格式输出
+	Output        Output                `json:"output" yaml:"output"`               // 输出配置
+	EncoderConfig zapcore.EncoderConfig `json:"encoderConfig" yaml:"encoderConfig"` // 输出的各个字段配置
 }
 
 // Configs 日志配置数组
 type Configs []*Config
 
-// String 打印配置
-func (c Configs) String() string {
-	var sb strings.Builder
-	sb.WriteString("[")
-	var length = len(c)
-	for i := 0; i < length; i++ {
-		sb.WriteString(c[i].String())
-		if i < length-1 {
-			sb.WriteString(",")
-		}
-	}
-	sb.WriteString("]")
-	return sb.String()
-}
-
-// String 打印配置
-func (c *Config) String() string {
+func (c *Config) MarshalJSON() ([]byte, error) {
 	if c == nil {
-		return "<nil>"
+		return []byte("null"), nil
 	}
 	m := map[string]interface{}{
 		"name":   c.Name,
@@ -107,6 +90,5 @@ func (c *Config) String() string {
 			"consoleSeparator": c.EncoderConfig.ConsoleSeparator,
 		},
 	}
-	s, _ := json.Marshal(m)
-	return string(s)
+	return json.Marshal(m)
 }

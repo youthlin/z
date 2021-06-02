@@ -8,9 +8,10 @@ logs:
       destination:
         filename: stdout
     encoderConfig:
-      levelEncoder: capitalColor # 带颜色大写的日志级别
-      timeEncoder: rfc3339nano # e.g.: 2006-01-02T15:04:05.999999999Z07:00
-      durationEncoder: string # 时间段格式化为带单位的: 968.6µs
+      levelEncoder: capitalColor # 带颜色大写的日志级别 capital/capitalColor/color/lowcase
+      timeEncoder: rfc3339nano # e.g.: 2006-01-02T15:04:05.999999999Z07:00 rfc3339nano/rfc3339/iso8601/millis/nanos/epoch
+      durationEncoder: string # 时间段格式化为带单位的: 968.6µs string/nanos/ms/seconds or 带 layout 子字段
+      callerEncoder: full # full/short
   - name: file # 输出到文件
     enable: true
     json: true
@@ -22,7 +23,8 @@ logs:
     encoderConfig:
       timeKey: time
       levelEncoder: capital
-      timeEncoder: rfc3339nano
+      timeEncoder:
+        layout: "2006-01-03 15:04:06.000"
       durationEncoder: nanos
   - name: error-file # 只收集 error 日志
     enable: true

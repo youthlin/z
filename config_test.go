@@ -1,6 +1,7 @@
 package z_test
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -24,31 +25,48 @@ func TestDefaultConfig(t *testing.T) {
 	})
 }
 func TestConfig(t *testing.T) {
+	type logConfig struct {
+		Logs z.Configs `json:"logs" yaml:"logs"`
+	}
 	Convey("new config", t, func() {
-		file, err := os.Open("config.yaml")
-		if err != nil {
-			t.Fatalf("Open fail|%+v", err)
-			return
-		}
-		bytes, err := ioutil.ReadAll(file)
-		if err != nil {
-			t.Fatalf("ReadAll fail|%+v", err)
-			return
-		}
-		type logConfig struct {
-			Logs z.Configs `yaml:"logs"`
-		}
-		var config logConfig
-		err = yaml.Unmarshal(bytes, &config)
-		if err != nil {
-			t.Fatalf("Unmarshal fail|%+v", err)
-			return
-		}
-		t.Logf("%v\n", config.Logs)
-		Convey("Console", func() {
-			logger := z.NewLogger(config.Logs[0:1])
-			logger.Debug("Hello, Console") // Level Info
-			logger.Info("Hello, Console")  // Level with color
+		Convey("yaml", func() {
+			file, err := os.Open("config.yaml")
+			if err != nil {
+				t.Fatalf("Open fail|%+v", err)
+				return
+			}
+			bytes, err := ioutil.ReadAll(file)
+			if err != nil {
+				t.Fatalf("ReadAll fail|%+v", err)
+				return
+			}
+
+			var config logConfig
+			err = yaml.Unmarshal(bytes, &config)
+			if err != nil {
+				t.Fatalf("Unmarshal fail|%+v", err)
+				return
+			}
+			t.Logf("print: %v\n", config.Logs)
+			b, _ := json.Marshal(config.Logs)
+			t.Logf(" json: %s\n", b)
+			Convey("Console", func() {
+				logger := z.NewLogger(config.Logs[0:1])
+				logger.Debug("Hello, Console") // Level Info
+				logger.Info("Hello, Console")  // Level with color
+			})
+		})
+		Convey("json", func() {
+			f, _ := os.Open("config.json")
+			b, _ := ioutil.ReadAll(f)
+			var config logConfig
+			err := json.Unmarshal(b, &config)
+			So(err, ShouldBeNil)
+			Convey("Console", func() {
+				logger := z.NewLogger(config.Logs[0:1])
+				logger.Debug("Hello, Console") // Level Info
+				logger.Info("Hello, Console")  // Level with color
+			})
 		})
 	})
 }

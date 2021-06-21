@@ -70,3 +70,18 @@ func TestConfig(t *testing.T) {
 		})
 	})
 }
+func TestMarshal(t *testing.T) {
+	Convey("marshal", t, func() {
+		c := z.DefaultConfig()
+		b, err := json.Marshal(c)
+		So(err, ShouldBeNil)
+
+		t.Logf("%s", b)
+		So(json.Unmarshal(b, &c), ShouldBeNil)
+		b, err = yaml.Marshal(c)
+		So(err, ShouldBeNil)
+		t.Logf("%s", b)
+		So(yaml.Unmarshal(b, &c), ShouldBeNil)
+		So(c[0].EncoderConfig.LineEnding, ShouldEqual, "\n")
+	})
+}

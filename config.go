@@ -53,11 +53,11 @@ type Config struct {
 // Configs 日志配置数组
 type Configs []*Config
 
-func (c *Config) MarshalJSON() ([]byte, error) {
+func (c *Config) AsMap() map[string]interface{} {
 	if c == nil {
-		return []byte("null"), nil
+		return nil
 	}
-	m := map[string]interface{}{
+	return map[string]interface{}{
 		"name":   c.Name,
 		"enable": c.Enable,
 		"level":  c.Level,
@@ -82,13 +82,50 @@ func (c *Config) MarshalJSON() ([]byte, error) {
 			"functionKey":      c.EncoderConfig.FunctionKey,
 			"stacktraceKey":    c.EncoderConfig.StacktraceKey,
 			"lineEnding":       c.EncoderConfig.LineEnding,
-			"levelEncoder":     funName(c.EncoderConfig.EncodeLevel),
-			"timeEncoder":      funName(c.EncoderConfig.EncodeTime),
-			"durationEncoder":  funName(c.EncoderConfig.EncodeDuration),
-			"callerEncoder":    funName(c.EncoderConfig.EncodeCaller),
-			"nameEncoder":      funName(c.EncoderConfig.EncodeName),
+			"levelEncoder":     marshalName(funName(c.EncoderConfig.EncodeLevel)),
+			"timeEncoder":      marshalName(funName(c.EncoderConfig.EncodeTime)),
+			"durationEncoder":  marshalName(funName(c.EncoderConfig.EncodeDuration)),
+			"callerEncoder":    marshalName(funName(c.EncoderConfig.EncodeCaller)),
+			"nameEncoder":      marshalName(funName(c.EncoderConfig.EncodeName)),
 			"consoleSeparator": c.EncoderConfig.ConsoleSeparator,
 		},
 	}
-	return json.Marshal(m)
+}
+
+var funcNameMap = map[string]string{
+	"go.uber.org/zap/zapcore.CapitalLevelEncoder":        "capital",
+	"go.uber.org/zap/zapcore.CapitalColorLevelEncoder":   "capitalColor",
+	"go.uber.org/zap/zapcore.LowercaseColorLevelEncoder": "color",
+	"go.uber.org/zap/zapcore.LowercaseLevelEncoder":      "",
+
+	"go.uber.org/zap/zapcore.RFC3339NanoTimeEncoder": "rfc3339nano",
+	"go.uber.org/zap/zapcore.RFC3339TimeEncoder":     "rfc3339",
+	"go.uber.org/zap/zapcore.ISO8601TimeEncoder":     "iso8601",
+	"go.uber.org/zap/zapcore.EpochMillisTimeEncoder": "millis",
+	"go.uber.org/zap/zapcore.EpochNanosTimeEncoder":  "nanos",
+	"go.uber.org/zap/zapcore.EpochTimeEncoder":       "",
+
+	"go.uber.org/zap/zapcore.StringDurationEncoder":  "string",
+	"go.uber.org/zap/zapcore.NanosDurationEncoder":   "nanos",
+	"go.uber.org/zap/zapcore.MillisDurationEncoder":  "ms",
+	"go.uber.org/zap/zapcore.SecondsDurationEncoder": "",
+
+	"go.uber.org/zap/zapcore.FullCallerEncoder":  "full",
+	"go.uber.org/zap/zapcore.ShortCallerEncoder": "",
+
+	"go.uber.org/zap/zapcore.FullNameEncoder": "full",
+}
+
+func marshalName(funcName string) string {
+	if name, ok := funcNameMap[funcName]; ok {
+		return name
+	}
+	return funcName
+}
+
+func (c *Config) MarshalJSON() ([]byte, error) {
+	return json.Marshal(c.AsMap())
+}
+func (c *Config) MarshalYAML() (interface{}, error) {
+	return c.AsMap(), nil
 }

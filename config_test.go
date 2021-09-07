@@ -6,82 +6,76 @@ import (
 	"os"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/youthlin/logs"
 	"github.com/youthlin/z"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v2"
 )
 
 func TestDefaultConfig(t *testing.T) {
-	Convey("DefaultConfig", t, func() {
-		c := z.DefaultConfig()
-		So(c, ShouldNotBeNil)
-		So(len(c), ShouldEqual, 1)
-		config := c[0]
-		So(config, ShouldNotBeNil)
-		So(config.Enable, ShouldBeTrue)
-		So(config.Level, ShouldEqual, zap.DebugLevel)
-		So(config.Output.Type, ShouldEqual, z.Console)
-	})
+	c := z.DefaultConfig()
+	logs.Assert(c != nil)
+	logs.Assert(len(c.Zap) == 1)
+	config := c.Zap[0]
+	logs.Assert(config != nil)
+	logs.Assert(config.Enable)
+	logs.Assert(config.Level == zap.DebugLevel)
+	logs.Assert(config.Output.Type == z.Console)
 }
 func TestConfig(t *testing.T) {
 	type logConfig struct {
-		Logs z.Configs `json:"logs" yaml:"logs"`
+		Logs z.LogsConfig `json:"logs" yaml:"logs"`
 	}
-	Convey("new config", t, func() {
-		Convey("yaml", func() {
-			file, err := os.Open("config.yaml")
-			if err != nil {
-				t.Fatalf("Open fail|%+v", err)
-				return
-			}
-			bytes, err := ioutil.ReadAll(file)
-			if err != nil {
-				t.Fatalf("ReadAll fail|%+v", err)
-				return
-			}
+	{
+		// json
+		var config logConfig
+		f, _ := os.Open("testdata/config.json")
+		b, _ := ioutil.ReadAll(f)
+		err := json.Unmarshal(b, &config)
+		logs.Assert(err == nil)
+		logs.Assert(config.Logs.Level != nil)
+		logs.Assert(config.Logs.Level.Root == logs.Warn)
+		logs.Assert(config.Logs.Level.Loggers["github"] == logs.Info)
 
-			var config logConfig
-			err = yaml.Unmarshal(bytes, &config)
-			if err != nil {
-				t.Fatalf("Unmarshal fail|%+v", err)
-				return
-			}
-			t.Logf("print: %v\n", config.Logs)
-			b, _ := json.Marshal(config.Logs)
-			t.Logf(" json: %s\n", b)
-			Convey("Console", func() {
-				logger := z.NewLogger(config.Logs[0:1])
-				logger.Debug("Hello, Console") // Level Info
-				logger.Info("Hello, Console")  // Level with color
-			})
-		})
-		Convey("json", func() {
-			f, _ := os.Open("config.json")
-			b, _ := ioutil.ReadAll(f)
-			var config logConfig
-			err := json.Unmarshal(b, &config)
-			So(err, ShouldBeNil)
-			Convey("Console", func() {
-				logger := z.NewLogger(config.Logs[0:1])
-				logger.Debug("Hello, Console") // Level Info
-				logger.Info("Hello, Console")  // Level with color
-			})
-		})
-	})
+		logger := z.NewLogger(config.Logs.Zap[0:1])
+		logger.Debug("Hello, Console Debug")
+		logger.Info("Hello, Console Info")
+	}
+	{
+		// yaml
+		var config logConfig
+		file, err := os.Open("testdata/config.yaml")
+		logs.Assert(err == nil)
+		bytes, err := ioutil.ReadAll(file)
+		logs.Assert(err == nil)
+		err = yaml.Unmarshal(bytes, &config)
+		logs.Assert(err == nil)
+		logs.Assert(config.Logs.Level != nil)
+		logs.Assert(config.Logs.Level.Root == logs.Warn)
+		logs.Assert(config.Logs.Level.Loggers["github"] == logs.Info)
+
+		b, _ := json.Marshal(config.Logs)
+		t.Logf(" json: %s\n", b)
+
+		logger := z.NewLogger(config.Logs.Zap[0:1])
+		logger.Debug("Hello, Console") // Level Info
+		logger.Info("Hello, Console")  // Level with color
+	}
 }
 func TestMarshal(t *testing.T) {
-	Convey("marshal", t, func() {
-		c := z.DefaultConfig()
-		b, err := json.Marshal(c)
-		So(err, ShouldBeNil)
+	c := z.DefaultConfig()
+	b, err := json.Marshal(c)
+	logs.Assert(err == nil)
 
-		t.Logf("%s", b)
-		So(json.Unmarshal(b, &c), ShouldBeNil)
-		b, err = yaml.Marshal(c)
-		So(err, ShouldBeNil)
-		t.Logf("%s", b)
-		So(yaml.Unmarshal(b, &c), ShouldBeNil)
-		So(c[0].EncoderConfig.LineEnding, ShouldEqual, "\n")
+	t.Logf("%s", b)
+	err = json.Unmarshal(b, &c)
+	logs.AssertThen(err == nil, nil, func() {
+		t.Logf("unmarshal err=%+v", err)
 	})
+	b, err = yaml.Marshal(c)
+	logs.Assert(err == nil)
+
+	t.Logf("%s", b)
+	logs.Assert(yaml.Unmarshal(b, &c) == nil)
+	logs.Assert(c.Zap[0].EncoderConfig.LineEnding == "\n")
 }

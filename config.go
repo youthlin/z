@@ -3,13 +3,14 @@ package z
 import (
 	"encoding/json"
 
+	"github.com/youthlin/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-var infoConsole = &Config{
-	Name:          "default-info-console",
+var debugConsole = &Config{
+	Name:          "default-debug-console",
 	Enable:        true,
 	Level:         zap.DebugLevel,
 	AsJSON:        false,
@@ -18,8 +19,29 @@ var infoConsole = &Config{
 }
 
 // DefaultConfig 返回默认的日志配置，debug 级别、输出到控制台
-func DefaultConfig() []*Config {
-	return []*Config{infoConsole}
+func DefaultConfig() *LogsConfig {
+	return &LogsConfig{
+		Level: logs.LevelConfig(logs.Debug),
+		Zap:   []*Config{debugConsole},
+	}
+}
+
+// LogsConfig 日志配置
+type LogsConfig struct {
+	// 各 Logger 的日志级别
+	Level *logs.Config `json:"level" yaml:"level"`
+	// zap 的输出配置
+	Zap []*Config `json:"zap" yaml:"zap"`
+}
+
+// Config 日志输出配置
+type Config struct {
+	Name          string                `json:"name" yaml:"name"`                   // 配置名称
+	Enable        bool                  `json:"enable" yaml:"enable"`               // 是否启用
+	Level         zapcore.Level         `json:"level" yaml:"level"`                 // 大于等于该级别的日志才会输出
+	AsJSON        bool                  `json:"json" yaml:"json"`                   // 整条日志使用 JSON 格式输出
+	Output        Output                `json:"output" yaml:"output"`               // 日志输出去向
+	EncoderConfig zapcore.EncoderConfig `json:"encoderConfig" yaml:"encoderConfig"` // 输出的各个字段格式
 }
 
 // Output 日志输出配置
@@ -39,19 +61,6 @@ const (
 	Stdout = "stdout" // 标准输出
 	Stderr = "stderr" // 标准错误
 )
-
-// Config 日志输出配置
-type Config struct {
-	Name          string                `json:"name" yaml:"name"`                   // 配置名称
-	Enable        bool                  `json:"enable" yaml:"enable"`               // 是否启用
-	Level         zapcore.Level         `json:"level" yaml:"level"`                 // 大于等于该级别的日志才会输出
-	AsJSON        bool                  `json:"json" yaml:"json"`                   // 整条日志使用 JSON 格式输出
-	Output        Output                `json:"output" yaml:"output"`               // 输出配置
-	EncoderConfig zapcore.EncoderConfig `json:"encoderConfig" yaml:"encoderConfig"` // 输出的各个字段配置
-}
-
-// Configs 日志配置数组
-type Configs []*Config
 
 func (c *Config) AsMap() map[string]interface{} {
 	if c == nil {

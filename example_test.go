@@ -64,9 +64,9 @@ func TestExample(t *testing.T) {
 	}
 	{
 		logs.SetConfig(&logs.Config{
-			Root: logs.Warn,
+			Root: logs.LevelWarn,
 			Loggers: map[string]logs.Level{
-				"github.com": logs.Debug,
+				"github.com": logs.LevelDebug,
 			},
 		})
 		log.Debug("my package is %s", callinfo.Get().PkgName)

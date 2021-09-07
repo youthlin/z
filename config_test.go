@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/youthlin/logs"
+	"github.com/youthlin/logs/pkg/arg"
 	"github.com/youthlin/z"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v2"
@@ -34,12 +35,19 @@ func TestConfig(t *testing.T) {
 		err := json.Unmarshal(b, &config)
 		logs.Assert(err == nil)
 		logs.Assert(config.Logs.Level != nil)
-		logs.Assert(config.Logs.Level.Root == logs.Warn)
-		logs.Assert(config.Logs.Level.Loggers["github"] == logs.Info)
+		logs.Assert(config.Logs.Level.Root == logs.LevelWarn)
+		logs.Assert(config.Logs.Level.Loggers["github"] == logs.LevelInfo)
 
 		logger := z.NewLogger(config.Logs.Zap[0:1])
 		logger.Debug("Hello, Console Debug")
 		logger.Info("Hello, Console Info")
+
+		// logs
+		z.SetConfig(&config.Logs)
+		logs.Debug("Debug")
+		logs.With("a", 1).Info("info")
+
+		// 这些 level 应该是彩色的
 	}
 	{
 		// yaml
@@ -51,15 +59,16 @@ func TestConfig(t *testing.T) {
 		err = yaml.Unmarshal(bytes, &config)
 		logs.Assert(err == nil)
 		logs.Assert(config.Logs.Level != nil)
-		logs.Assert(config.Logs.Level.Root == logs.Warn)
-		logs.Assert(config.Logs.Level.Loggers["github"] == logs.Info)
+		logs.Assert(config.Logs.Level.Root == logs.LevelWarn)
+		logs.Assert(config.Logs.Level.Loggers["github"] == logs.LevelInfo)
 
-		b, _ := json.Marshal(config.Logs)
-		t.Logf(" json: %s\n", b)
+		z.SetConfig(&config.Logs)
+
+		logs.Info(" json: %s", arg.JSON(config))
 
 		logger := z.NewLogger(config.Logs.Zap[0:1])
-		logger.Debug("Hello, Console") // Level Info
-		logger.Info("Hello, Console")  // Level with color
+		logger.Debug("Hello, Console")
+		logger.Info("Hello, Console") // Level with color
 	}
 }
 func TestMarshal(t *testing.T) {

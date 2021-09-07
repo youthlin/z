@@ -21,7 +21,7 @@ var debugConsole = &Config{
 // DefaultConfig 返回默认的日志配置，debug 级别、输出到控制台
 func DefaultConfig() *LogsConfig {
 	return &LogsConfig{
-		Level: logs.LevelConfig(logs.Debug),
+		Level: logs.LevelConfig(logs.LevelDebug),
 		Zap:   []*Config{debugConsole},
 	}
 }

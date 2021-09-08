@@ -11,15 +11,15 @@
             {
                 "name": "console",
                 "enable": true,
-                "json": false,
                 "level": "debug",
                 "output": {
                     "type": "console",
-                    "destination": {
+                    "file": {
                         "filename": "stdout"
                     }
                 },
-                "encoderConfig": {
+                "encoder": {
+                    "json": false,
                     "levelEncoder": "capitalColor",
                     "timeEncoder": "rfc3339nano",
                     "durationEncoder": "string"
@@ -28,15 +28,15 @@
             {
                 "name": "file",
                 "enable": true,
-                "json": false,
                 "level": "debug",
                 "output": {
                     "type": "file",
-                    "destination": {
+                    "file": {
                         "filename": "app.log"
                     }
                 },
-                "encoderConfig": {
+                "encoder": {
+                    "json": false,
                     "timeKey": "time",
                     "levelEncoder": "capital",
                     "timeEncoder": "rfc3339nano",
@@ -46,15 +46,15 @@
             {
                 "name": "err-fail",
                 "enable": true,
-                "json": false,
                 "level": "error",
                 "output": {
                     "type": "file",
-                    "destination": {
+                    "file": {
                         "filename": "app.error.log"
                     }
                 },
-                "encoderConfig": {
+                "encoder": {
+                    "json": false,
                     "timeKey": "time",
                     "levelEncoder": "capital",
                     "timeEncoder": "rfc3339nano",

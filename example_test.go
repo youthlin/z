@@ -20,6 +20,8 @@ type some struct {
 var s = some{"SomeName"}
 var ctx = context.Background()
 var err = errors.New("error")
+var assert = logs.Assert
+var assertThen = logs.AssertThen
 
 func TestExample(t *testing.T) {
 	// import _ "github.com/youthlin/z" // init zap Adaptor
@@ -63,7 +65,7 @@ func TestExample(t *testing.T) {
 		log.Ctx(ctx).Debug("with k1-v1 and k2-v2 k3-v3")
 	}
 	{
-		logs.SetConfig(&logs.Config{
+		logs.SetLoggerLevel(&logs.LoggerLevel{
 			Root: logs.LevelWarn,
 			Loggers: map[string]logs.Level{
 				"github.com": logs.LevelDebug,

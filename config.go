@@ -2,6 +2,7 @@ package z
 
 import (
 	"encoding/json"
+	"io"
 	"os"
 
 	"github.com/youthlin/logs"
@@ -270,4 +271,10 @@ func (o *Output) WriteSyncer() zapcore.WriteSyncer {
 		o.writerS = ws
 	}
 	return o.writerS
+}
+
+var _ io.Writer = (*Output)(nil)
+
+func (o *Output) Write(p []byte) (n int, err error) {
+	return o.WriteSyncer().Write(p)
 }
